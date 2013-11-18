@@ -2,10 +2,20 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "error:carrier.formula_price_list:"
+msgid "Add a sale before to create a formula"
+msgstr ""
+"Crea una comanda de venda abans d'un càlcul per comprovar la seva sintaxis."
+
+msgctxt "error:carrier.formula_price_list:"
+msgid "Invalid formula \"%(formula)s\" in price list line \"%(line)s\"."
+msgstr "Càlcul incorrece \"%(formula)s\" en la linia \"%(line)s\"."
+
 msgctxt "field:carrier,formula_currency:"
 msgid "Currency"
 msgstr "Moneda"
 
+#, fuzzy
 msgctxt "field:carrier,formula_currency_digits:"
 msgid "Formula Currency Digits"
 msgstr "Càlcul dígits moneda"
