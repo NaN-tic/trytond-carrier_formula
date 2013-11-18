@@ -118,7 +118,36 @@ class FormulaPriceList(ModelSQL, ModelView):
     def __setup__(cls):
         super(FormulaPriceList, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
+        cls._error_messages.update({
+                'add_sale': ('Add a sale before to create a formula'),
+                'invalid_formula': ('Invalid formula "%(formula)s" in price '
+                    'list line "%(line)s".'),
+                })
 
     @staticmethod
     def default_formula():
         return 'sale.total_amount > 0'
+
+    @classmethod
+    def validate(cls, lines):
+        super(FormulaPriceList, cls).validate(lines)
+        for line in lines:
+            line.check_formula()
+
+    def check_formula(self):
+        '''
+        Check formula
+        '''
+        context = Transaction().context.copy()
+        sales = Pool().get('sale.sale').search([], limit=1)
+        if not sales:
+            self.raise_user_error('add_sale')
+        sale = sales[0]
+        context['sale'] = sale
+        try:
+            safe_eval(decistmt(self.formula), context)
+        except:
+            self.raise_user_error('invalid_formula', {
+                    'formula': self.formula,
+                    'line': self.rec_name,
+                    })
