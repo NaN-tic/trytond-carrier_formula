@@ -107,11 +107,11 @@ class FormulaPriceList(ModelSQL, ModelView):
     'Carrier Formula Price List'
     __name__ = 'carrier.formula_price_list'
     carrier = fields.Many2One('carrier', 'Carrier', required=True, select=True)
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', required=True)
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
             'sale.total_amount > 0'))
-    price = fields.Numeric('Price',
+    price = fields.Numeric('Price', required=True,
         digits=(16, Eval('_parent_carrier.formula_currency_digits', 2)))
 
     @classmethod
@@ -125,8 +125,16 @@ class FormulaPriceList(ModelSQL, ModelView):
                 })
 
     @staticmethod
+    def default_sequence():
+        return 1
+
+    @staticmethod
     def default_formula():
         return 'sale.total_amount > 0'
+
+    @staticmethod
+    def default_price():
+        return Decimal(0)
 
     @classmethod
     def validate(cls, lines):
