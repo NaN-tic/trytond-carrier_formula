@@ -2,4 +2,4 @@
 
 * Formula
 
-  ``sale.total_amount > 0``
+  ``record.total_amount > 0``

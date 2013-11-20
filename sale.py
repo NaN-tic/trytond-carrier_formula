@@ -31,5 +31,5 @@ class Sale:
         if not self.currency:
             return context
         context = context.copy()
-        context['sale'] = self
+        context['record'] = self
         return context
