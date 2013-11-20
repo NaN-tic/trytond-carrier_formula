@@ -3,10 +3,6 @@ msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:carrier.formula_price_list:"
-msgid "Add a sale before to create a formula"
-msgstr "Crea un pedido de venta antes de crear un cálculo"
-
-msgctxt "error:carrier.formula_price_list:"
 msgid "Invalid formula \"%(formula)s\" in price list line \"%(line)s\"."
 msgstr "Error en el cálculo  \"%(formula)s\" en la línea \"%(line)s\"."
 
