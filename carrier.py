@@ -97,6 +97,13 @@ class Carrier:
             formula_price = Decimal(0)
             sale = Transaction().context.get('record', None)
             if sale:
+                sale.untaxed_amount = Decimal(0)
+                for line in sale['lines']:
+                    if not line.shipment_cost and line.amount and line.type == 'line':
+                        sale.untaxed_amount += line.amount
+                sale.tax_amount = sale.get_tax_amount()
+                sale.total_amount = sale.untaxed_amount + sale.tax_amount
+
                 for formula in sale['carrier'].formula_price_list:
                     formula_price = self.compute_formula_price(formula)
             return formula_price, self.formula_currency.id
@@ -108,6 +115,13 @@ class Carrier:
             formula_price = Decimal(0)
             purchase = Transaction().context.get('record', None)
             if purchase:
+                purchase.untaxed_amount = Decimal(0)
+                for line in sale['lines']:
+                    if not line.shipment_cost and line.amount and line.type == 'line':
+                        purchase.untaxed_amount += line.amount
+                purchase.tax_amount = purchase.get_tax_amount()
+                purchase.total_amount = purchase.untaxed_amount + purchase.tax_amount
+
                 for formula in purchase['carrier'].formula_price_list:
                     formula_price = self.compute_formula_price(formula)
             return formula_price, self.formula_currency.id
