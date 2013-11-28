@@ -52,6 +52,16 @@ class ShipmentIn:
 class ShipmentOut:
     __name__ = 'stock.shipment.out'
 
+    @classmethod
+    def __setup__(cls):
+        super(ShipmentOut, cls).__setup__()
+        for fname in ('carrier', 'customer', 'inventory_moves', 'origin'):
+            if fname not in cls.inventory_moves.on_change:
+                cls.inventory_moves.on_change.append(fname)
+        for fname in cls.inventory_moves.on_change:
+            if fname not in cls.carrier.on_change:
+                cls.carrier.on_change.append(fname)
+
     def _get_carrier_context(self):
         Company = Pool().get('company.company')
         context = super(ShipmentOut, self)._get_carrier_context()
