@@ -73,7 +73,6 @@ class ShipmentOut:
             return context
         
         if self.origin and self.origin.__name__ == 'sale.sale':
-            print "dins"
             company = Company(Transaction().context['company'])
             context['record'] = self.origin
             context['amount'] = _formula_amount(self.inventory_moves, company)
