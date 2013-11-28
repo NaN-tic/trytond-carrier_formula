@@ -71,9 +71,11 @@ class ShipmentOut:
         context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
-
-        company = Company(Transaction().context['company'])
-        context['record'] = self.origin
-        context['amount'] = _formula_amount(self.inventory_moves, company)
-        context['currency'] = company.currency.id
+        
+        if self.origin and self.origin.__name__ == 'sale.sale':
+            print "dins"
+            company = Company(Transaction().context['company'])
+            context['record'] = self.origin
+            context['amount'] = _formula_amount(self.inventory_moves, company)
+            context['currency'] = company.currency.id
         return context
