@@ -43,7 +43,7 @@ class ShipmentIn:
             return context
 
         company = Company(Transaction().context['company'])
-        context['record'] = self.origin
+        context['record'] = self
         context['amount'] = _formula_amount(self.incoming_moves, company)
         context['currency'] = company.currency.id
         return context
