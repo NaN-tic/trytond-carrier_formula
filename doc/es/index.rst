@@ -1,6 +1,6 @@
-====================
-Transportistas. Peso
-====================
+========================
+Transportistas. Formulas
+========================
 
 Añade método de coste basado en una formula.
 
