@@ -119,7 +119,7 @@ class Carrier:
             purchase = Transaction().context.get('record', None)
             if purchase:
                 purchase.untaxed_amount = Decimal(0)
-                for line in sale['lines']:
+                for line in purchase['lines']:
                     if not line.shipment_cost and line.amount and line.type == 'line':
                         purchase.untaxed_amount += line.amount
                 purchase.tax_amount = purchase.get_tax_amount()
