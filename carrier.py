@@ -94,7 +94,8 @@ class Carrier:
     def get_sale_price(self):
         price, currency_id = super(Carrier, self).get_sale_price()
         if self.carrier_cost_method == 'formula':
-            formula_price = Decimal(0)
+            price = Decimal(0)
+            currency_id = self.formula_currency.id
             sale = Transaction().context.get('record', None)
             if sale:
                 sale.untaxed_amount = Decimal(0)
@@ -105,14 +106,16 @@ class Carrier:
                 sale.total_amount = sale.untaxed_amount + sale.tax_amount
 
                 for formula in sale['carrier'].formula_price_list:
-                    formula_price = self.compute_formula_price(formula)
-            return formula_price, self.formula_currency.id
+                    price = self.compute_formula_price(formula)
+            else:
+                price = self.carrier_product.list_price
         return price, currency_id
 
     def get_purchase_price(self):
         price, currency_id = super(Carrier, self).get_purchase_price()
         if self.carrier_cost_method == 'formula':
-            formula_price = Decimal(0)
+            price = Decimal(0)
+            currency_id = self.formula_currency.id
             purchase = Transaction().context.get('record', None)
             if purchase:
                 purchase.untaxed_amount = Decimal(0)
@@ -123,8 +126,9 @@ class Carrier:
                 purchase.total_amount = purchase.untaxed_amount + purchase.tax_amount
 
                 for formula in purchase['carrier'].formula_price_list:
-                    formula_price = self.compute_formula_price(formula)
-            return formula_price, self.formula_currency.id
+                    price = self.compute_formula_price(formula)
+            else:
+                price = self.carrier_product.list_price
         return price, currency_id
 
 
