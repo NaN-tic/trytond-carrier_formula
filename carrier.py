@@ -135,7 +135,7 @@ class FormulaPriceList(ModelSQL, ModelView):
     sequence = fields.Integer('Sequence', required=True)
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
-            'sale.total_amount > 0'))
+            'record.total_amount > 0'))
     price = fields.Numeric('Price', required=True,
         digits=(16, Eval('_parent_carrier.formula_currency_digits', 2)))
 
