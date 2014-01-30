@@ -14,9 +14,7 @@ class Sale:
     def __setup__(cls):
         super(Sale, cls).__setup__()
 
-        for fname in ('carrier', 'party', 'currency', 'sale_date', 
-            'shipment_cost_method', 'lines', 'shipment_address',
-            'untaxed_amount', 'total_amount'):
+        for fname in ('shipment_address', 'untaxed_amount', 'total_amount'):
             if fname not in cls.lines.on_change:
                 cls.lines.on_change.append(fname)
         for fname in cls.lines.on_change:
