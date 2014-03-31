@@ -25,7 +25,8 @@ def _formula_amount(lines, company):
         if currency:
             unit_price = Currency.compute(currency, unit_price,
                 company.currency, round=False)
-        amount += unit_price * Decimal(str(line.quantity or 0))
+        if unit_price:
+            amount += unit_price * Decimal(str(line.quantity or 0))
     return amount
 
 
