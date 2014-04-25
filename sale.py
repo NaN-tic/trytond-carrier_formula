@@ -24,7 +24,7 @@ class Sale:
     def _get_carrier_context(self):
         context = super(Sale, self)._get_carrier_context()
 
-        if self.carrier.carrier_cost_method != 'formula':
+        if self.carrier and self.carrier.carrier_cost_method != 'formula':
             return context
         if not self.currency:
             return context
