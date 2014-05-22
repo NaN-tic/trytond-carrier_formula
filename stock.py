@@ -1,7 +1,7 @@
 #This file is part of Tryton.  The COPYRIGHT file at the top level of
 #this repository contains the full copyright notices and license terms.
 from decimal import Decimal
-
+from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 
@@ -53,16 +53,6 @@ class ShipmentIn:
 class ShipmentOut:
     __name__ = 'stock.shipment.out'
 
-    @classmethod
-    def __setup__(cls):
-        super(ShipmentOut, cls).__setup__()
-        for fname in ('carrier', 'customer', 'inventory_moves', 'origin'):
-            if fname not in cls.inventory_moves.on_change:
-                cls.inventory_moves.on_change.append(fname)
-        for fname in cls.inventory_moves.on_change:
-            if fname not in cls.carrier.on_change:
-                cls.carrier.on_change.append(fname)
-
     def _get_carrier_context(self):
         Company = Pool().get('company.company')
         context = super(ShipmentOut, self)._get_carrier_context()
@@ -79,3 +69,12 @@ class ShipmentOut:
             context['amount'] = _formula_amount(self.inventory_moves, company)
             context['currency'] = company.currency.id
         return context
+
+    @fields.depends('inventory_moves', 'carrier', 'customer', 'origin',
+         'inventory_moves')
+    def on_change_carrier(self):
+        return super(ShipmentOut, self).on_change_carrier()
+
+    @fields.depends('carrier', 'customer', 'inventory_moves', 'origin')
+    def on_change_inventory_moves(self):
+        return super(ShipmentOut, self).on_change_inventory_moves()

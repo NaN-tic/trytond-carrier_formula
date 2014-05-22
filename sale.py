@@ -16,10 +16,10 @@ class Sale:
 
         for fname in ('shipment_address', 'untaxed_amount', 'total_amount'):
             if fname not in cls.lines.on_change:
-                cls.lines.on_change.append(fname)
+                cls.lines.on_change.add(fname)
         for fname in cls.lines.on_change:
             if fname not in cls.carrier.on_change:
-                cls.carrier.on_change.append(fname)
+                cls.carrier.on_change.add(fname)
 
     def _get_carrier_context(self):
         context = super(Sale, self)._get_carrier_context()
