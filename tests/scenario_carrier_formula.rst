@@ -37,7 +37,7 @@ Create company::
     >>> company_config = Wizard('company.company.config')
     >>> company_config.execute('company')
     >>> company = company_config.form
-    >>> party = Party(name='B2CK')
+    >>> party = Party(name='Dunder Mifflin')
     >>> party.save()
     >>> company.party = party
     >>> currencies = Currency.find([('code', '=', 'EUR')])
