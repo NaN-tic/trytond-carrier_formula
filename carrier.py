@@ -55,7 +55,7 @@ class Carrier:
             },
         depends=['carrier_cost_method', 'formula_price_list'])
     formula_currency_digits = fields.Function(fields.Integer(
-            'Formula Currency Digits', on_change_with=['formula_currency']),
+            'Formula Currency Digits'),
         'on_change_with_formula_currency_digits')
     formula_price_list = fields.One2Many('carrier.formula_price_list', 'carrier',
         'Price List',
