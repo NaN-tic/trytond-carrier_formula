@@ -92,12 +92,30 @@ class Carrier:
         return Decimal(0)
 
     def get_sale_price(self):
+        # Designed to get shipment price with a current sale (default)
+        # or calculate prices for a hipotetic order (sale cart).
+        # Second case, we add in context a carrier and simulate a sale in record
+        # to evaluate (safe eval) in carrier formula.
+
+        # Example:
+        # sale = Sale()
+        # sale.untaxed_amount = untaxed_amount
+        # sale.tax_amount = tax_amount
+        # sale.total_amount = total_amount
+        # context = {}
+        # context['record'] = sale 
+        # context['carrier'] = carrier
+
         price, currency_id = super(Carrier, self).get_sale_price()
         if self.carrier_cost_method == 'formula':
             price = Decimal(0)
             currency_id = self.formula_currency.id
+            carrier = Transaction().context.get('carrier', None)
             sale = Transaction().context.get('record', None)
-            if sale:
+            if carrier:
+                for formula in carrier.formula_price_list:
+                    price = self.compute_formula_price(formula)
+            elif sale:
                 sale.untaxed_amount = Decimal(0)
                 for line in sale['lines']:
                     if not line.shipment_cost and line.amount and line.type == 'line':
