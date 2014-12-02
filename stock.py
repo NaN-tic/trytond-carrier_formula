@@ -62,7 +62,7 @@ class ShipmentOut:
         context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
-        
+
         if self.origin and self.origin.__name__ == 'sale.sale':
             company = Company(Transaction().context['company'])
             context['record'] = self.origin
