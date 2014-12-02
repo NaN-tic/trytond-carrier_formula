@@ -84,6 +84,11 @@ class Carrier:
             return self.formula_currency.digits
         return 2
 
+    @staticmethod
+    def round_price_formula(number, digits):
+        quantize = Decimal(10) ** -Decimal(digits)
+        return Decimal(number).quantize(quantize)
+
     def compute_formula_price(self, formula):
         "Compute price based on formula"
         for line in self.formula_price_list:
@@ -127,6 +132,8 @@ class Carrier:
                     price = self.compute_formula_price(formula)
             else:
                 price = self.carrier_product.list_price
+
+        price = self.round_price_formula(price, self.formula_currency_digits)
         return price, currency_id
 
     def get_purchase_price(self):
@@ -147,6 +154,8 @@ class Carrier:
                     price = self.compute_formula_price(formula)
             else:
                 price = self.carrier_product.list_price
+
+        price = self.round_price_formula(price, self.formula_currency_digits)
         return price, currency_id
 
 
