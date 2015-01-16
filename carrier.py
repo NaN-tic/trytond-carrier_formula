@@ -123,7 +123,9 @@ class Carrier:
             elif sale:
                 sale.untaxed_amount = Decimal(0)
                 for line in sale['lines']:
-                    if not line.shipment_cost and line.amount and line.type == 'line':
+                    if hasattr(line, 'shipment_cost') and line.shipment_cost:
+                        continue
+                    if line.amount and line.type == 'line':
                         sale.untaxed_amount += line.amount
                 sale.tax_amount = sale.get_tax_amount()
                 sale.total_amount = sale.untaxed_amount + sale.tax_amount
