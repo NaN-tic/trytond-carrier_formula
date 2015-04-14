@@ -4,12 +4,13 @@
 from decimal import Decimal
 import tokenize
 from StringIO import StringIO
-
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.tools import safe_eval
+from trytond.config import config as config_
+DIGITS = int(config_.get('digits', 'unit_price_digits', 4))
 
 __all__ = ['Carrier', 'FormulaPriceList']
 __metaclass__ = PoolMeta
@@ -176,8 +177,7 @@ class FormulaPriceList(ModelSQL, ModelView):
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
             'record.total_amount > 0'))
-    price = fields.Numeric('Price', required=True,
-        digits=(16, Eval('_parent_carrier.formula_currency_digits', 2)))
+    price = fields.Numeric('Price', required=True, digits=(16, DIGITS))
 
     @classmethod
     def __setup__(cls):
