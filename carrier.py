@@ -4,16 +4,17 @@
 from decimal import Decimal
 import tokenize
 from StringIO import StringIO
+from simpleeval import simple_eval
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
-from trytond.tools import safe_eval
 from trytond.config import config as config_
-DIGITS = int(config_.get('digits', 'unit_price_digits', 4))
 
 __all__ = ['Carrier', 'FormulaPriceList']
 __metaclass__ = PoolMeta
+
+DIGITS = config_.getint('product', 'price_decimal', default=4)
 
 # code snippet taken from http://docs.python.org/library/tokenize.html
 def decistmt(s):
@@ -93,7 +94,7 @@ class Carrier:
     def compute_formula_price(self, formula):
         "Compute price based on formula"
         for line in self.formula_price_list:
-            if safe_eval(decistmt(line.formula), Transaction().context):
+            if simple_eval(decistmt(line.formula), Transaction().context):
                 return line.price
         return Decimal(0)
 
