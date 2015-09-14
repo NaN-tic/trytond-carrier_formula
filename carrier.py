@@ -2,49 +2,18 @@
 #The COPYRIGHT file at the top level of this repository contains
 #the full copyright notices and license terms.
 from decimal import Decimal
-import tokenize
-from StringIO import StringIO
 from simpleeval import simple_eval
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.config import config as config_
+from trytond.tools import decistmt
 
 __all__ = ['Carrier', 'FormulaPriceList']
 __metaclass__ = PoolMeta
 
 DIGITS = config_.getint('product', 'price_decimal', default=4)
-
-# code snippet taken from http://docs.python.org/library/tokenize.html
-def decistmt(s):
-    """Substitute Decimals for floats in a string of statements.
-
-    >>> from decimal import Decimal
-    >>> s = 'print +21.3e-5*-.1234/81.7'
-    >>> decistmt(s)
-    "print +Decimal ('21.3e-5')*-Decimal ('.1234')/Decimal ('81.7')"
-
-    >>> exec(s)
-    -3.21716034272e-007
-    >>> exec(decistmt(s))
-    -3.217160342717258261933904529E-7
-    """
-    result = []
-    # tokenize the string
-    g = tokenize.generate_tokens(StringIO(s).readline)
-    for toknum, tokval, _, _, _ in g:
-        # replace NUMBER tokens
-        if toknum == tokenize.NUMBER and '.' in tokval:
-            result.extend([
-                (tokenize.NAME, 'Decimal'),
-                (tokenize.OP, '('),
-                (tokenize.STRING, repr(tokval)),
-                (tokenize.OP, ')')
-            ])
-        else:
-            result.append((toknum, tokval))
-    return tokenize.untokenize(result)
 
 
 class Carrier:
@@ -74,6 +43,13 @@ class Carrier:
             cls.carrier_cost_method.selection.append(selection)
 
     @staticmethod
+    def default_formula_currency():
+        Company = Pool().get('company.company')
+        company = Transaction().context.get('company')
+        if company:
+            return Company(company).currency.id
+
+    @staticmethod
     def default_formula_currency_digits():
         Company = Pool().get('company.company')
         company = Transaction().context.get('company')
@@ -91,10 +67,25 @@ class Carrier:
         quantize = Decimal(10) ** -Decimal(digits)
         return Decimal(number).quantize(quantize)
 
-    def compute_formula_price(self, formula):
+    def get_context_formula(self, record):
+        return {
+            'names': {
+                'record': record,
+            },
+            'functions': {
+                'getattr': getattr,
+                'setattr': setattr,
+                'hasattr': hasattr,
+                'Decimal': Decimal,
+                'round': round,
+                },
+            }
+
+    def compute_formula_price(self, formula, record):
         "Compute price based on formula"
+        context = self.get_context_formula(record)
         for line in self.formula_price_list:
-            if simple_eval(decistmt(line.formula), Transaction().context):
+            if simple_eval(decistmt(line.formula), **context):
                 return line.price
         return Decimal(0)
 
@@ -110,7 +101,7 @@ class Carrier:
         # sale.tax_amount = tax_amount
         # sale.total_amount = total_amount
         # context = {}
-        # context['record'] = sale 
+        # context['record'] = record 
         # context['carrier'] = carrier
 
         price, currency_id = super(Carrier, self).get_sale_price()
@@ -118,24 +109,24 @@ class Carrier:
             price = Decimal(0)
             currency_id = self.formula_currency.id
             carrier = Transaction().context.get('carrier', None)
-            sale = Transaction().context.get('record', None)
+            record = Transaction().context.get('record', None)
 
             if carrier:
                 for formula in carrier.formula_price_list:
-                    price = self.compute_formula_price(formula)
-            elif sale:
-                if sale.carrier:
-                    sale.untaxed_amount = Decimal(0)
-                    for line in sale['lines']:
+                    price = self.compute_formula_price(formula, record)
+            elif record and record.__name__ == 'sale.sale':
+                if record.carrier:
+                    record.untaxed_amount = Decimal(0)
+                    for line in record['lines']:
                         if hasattr(line, 'shipment_cost') and line.shipment_cost:
                             continue
                         if line.amount and line.type == 'line':
-                            sale.untaxed_amount += line.amount
-                    sale.tax_amount = sale.get_tax_amount()
-                    sale.total_amount = sale.untaxed_amount + sale.tax_amount
+                            record.untaxed_amount += line.amount
+                    record.tax_amount = record.get_tax_amount()
+                    record.total_amount = record.untaxed_amount + record.tax_amount
 
-                    for formula in sale['carrier'].formula_price_list:
-                        price = self.compute_formula_price(formula)
+                    for formula in record['carrier'].formula_price_list:
+                        price = self.compute_formula_price(formula, record)
                 else:
                     price = self.carrier_product.list_price
             else:
@@ -149,18 +140,19 @@ class Carrier:
         if self.carrier_cost_method == 'formula':
             price = Decimal(0)
             currency_id = self.formula_currency.id
-            purchase = Transaction().context.get('record', None)
-            if purchase:
-                if purchase.carrier:
-                    purchase.untaxed_amount = Decimal(0)
-                    for line in purchase['lines']:
-                        if not line.shipment_cost and line.amount and line.type == 'line':
-                            purchase.untaxed_amount += line.amount
-                    purchase.tax_amount = purchase.get_tax_amount()
-                    purchase.total_amount = purchase.untaxed_amount + purchase.tax_amount
+            record = Transaction().context.get('record', None)
 
-                    for formula in purchase['carrier'].formula_price_list:
-                        price = self.compute_formula_price(formula)
+            if record and record.__name__ == 'purchase.purchase':
+                if record.carrier:
+                    record.untaxed_amount = Decimal(0)
+                    for line in record['lines']:
+                        if not line.shipment_cost and line.amount and line.type == 'line':
+                            record.untaxed_amount += line.amount
+                    record.tax_amount = record.get_tax_amount()
+                    record.total_amount = record.untaxed_amount + record.tax_amount
+
+                    for formula in record['carrier'].formula_price_list:
+                        price = self.compute_formula_price(formula, record)
                 else:
                     price = self.carrier_product.list_price
             else:
@@ -195,7 +187,7 @@ class FormulaPriceList(ModelSQL, ModelView):
 
     @staticmethod
     def default_formula():
-        return 'record.total_amount > 0'
+        return 'getattr(record, "total_amount") > 0'
 
     @staticmethod
     def default_price():

@@ -1,7 +1,7 @@
-#This file is part of Tryton.  The COPYRIGHT file at the top level of
-#this repository contains the full copyright notices and license terms.
+#This file is part carrier_formula module for Tryton.
+#The COPYRIGHT file at the top level of this repository contains
+#the full copyright notices and license terms.
 from decimal import Decimal
-from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 
@@ -25,8 +25,7 @@ def _formula_amount(lines, company):
         if currency:
             unit_price = Currency.compute(currency, unit_price,
                 company.currency, round=False)
-        if unit_price:
-            amount += unit_price * Decimal(str(line.quantity or 0))
+        amount += unit_price * Decimal(str(line.quantity or 0))
     return amount
 
 
@@ -35,14 +34,13 @@ class ShipmentIn:
 
     def _get_carrier_context(self):
         Company = Pool().get('company.company')
+
         context = super(ShipmentIn, self)._get_carrier_context()
         if not self.carrier:
             return context
-
         context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
-
         company = Company(Transaction().context['company'])
         context['record'] = self
         context['amount'] = _formula_amount(self.incoming_moves, company)
@@ -55,26 +53,18 @@ class ShipmentOut:
 
     def _get_carrier_context(self):
         Company = Pool().get('company.company')
+
         context = super(ShipmentOut, self)._get_carrier_context()
         if not self.carrier:
             return context
-
         context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
-
         if self.origin and self.origin.__name__ == 'sale.sale':
-            company = Company(Transaction().context['company'])
             context['record'] = self.origin
-            context['amount'] = _formula_amount(self.inventory_moves, company)
-            context['currency'] = company.currency.id
+        else:
+            context['record'] = self
+        company = Company(Transaction().context['company'])
+        context['amount'] = _formula_amount(self.inventory_moves, company)
+        context['currency'] = company.currency.id
         return context
-
-    @fields.depends('inventory_moves', 'carrier', 'customer', 'origin',
-         'inventory_moves')
-    def on_change_carrier(self):
-        return super(ShipmentOut, self).on_change_carrier()
-
-    @fields.depends('carrier', 'customer', 'inventory_moves', 'origin')
-    def on_change_inventory_moves(self):
-        return super(ShipmentOut, self).on_change_inventory_moves()
