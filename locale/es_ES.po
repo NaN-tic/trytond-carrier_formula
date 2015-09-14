@@ -1,4 +1,4 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
@@ -12,7 +12,7 @@ msgstr "Moneda"
 
 msgctxt "field:carrier,formula_currency_digits:"
 msgid "Formula Currency Digits"
-msgstr "Cálculo dígitos moneda"
+msgstr "Dígitos moneda formula"
 
 msgctxt "field:carrier,formula_price_list:"
 msgid "Price List"
@@ -24,7 +24,7 @@ msgstr "Transportista"
 
 msgctxt "field:carrier.formula_price_list,create_date:"
 msgid "Create Date"
-msgstr "Fecha de creación"
+msgstr "Fecha creación"
 
 msgctxt "field:carrier.formula_price_list,create_uid:"
 msgid "Create User"
@@ -36,7 +36,7 @@ msgstr "Cálculo"
 
 msgctxt "field:carrier.formula_price_list,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:carrier.formula_price_list,price:"
 msgid "Price"
@@ -61,10 +61,10 @@ msgstr "Usuario modificación"
 msgctxt "help:carrier.formula_price_list,formula:"
 msgid ""
 "Python expression that will be evaluated. Eg:\n"
-"record.total_amount > 0"
+"getattr(record, \"total_amount\") > 0"
 msgstr ""
 "Expresión de Python a evaluar. Por ejemplo:\n"
-"record.total_amount > 0"
+"getattr(record, \"total_amount\") > 0"
 
 msgctxt "model:carrier.formula_price_list,name:"
 msgid "Carrier Formula Price List"
