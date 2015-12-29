@@ -9,7 +9,7 @@ import os
 import ConfigParser
 
 MODULE = 'carrier_formula'
-PREFIX = 'zikzakmedia'
+PREFIX = 'trytonzz'
 MODULE2PREFIX = {}
 
 def read(fname):
