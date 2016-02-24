@@ -65,6 +65,7 @@ class ShipmentOut:
         else:
             context['record'] = self
         company = Company(Transaction().context['company'])
-        context['amount'] = _formula_amount(self.inventory_moves, company)
+        context['amount'] = _formula_amount(
+            getattr(self, 'inventory_moves', None), company)
         context['currency'] = company.currency.id
         return context
