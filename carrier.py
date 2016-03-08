@@ -117,7 +117,7 @@ class Carrier:
             elif record and record.__name__ == 'sale.sale':
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
-                    for line in record['lines']:
+                    for line in record.get('lines', []):
                         if hasattr(line, 'shipment_cost') and line.shipment_cost:
                             continue
                         if line.amount and line.type == 'line':
