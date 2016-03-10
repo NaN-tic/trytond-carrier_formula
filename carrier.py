@@ -117,7 +117,7 @@ class Carrier:
             elif record and record.__name__ == 'sale.sale':
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
-                    for line in record.get('lines', []):
+                    for line in record.lines:
                         if hasattr(line, 'shipment_cost') and line.shipment_cost:
                             continue
                         if line.amount and line.type == 'line':
@@ -125,7 +125,7 @@ class Carrier:
                     record.tax_amount = record.get_tax_amount()
                     record.total_amount = record.untaxed_amount + record.tax_amount
 
-                    for formula in record['carrier'].formula_price_list:
+                    for formula in record.carrier.formula_price_list:
                         price = self.compute_formula_price(formula, record)
                 else:
                     price = self.carrier_product.list_price
