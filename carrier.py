@@ -11,12 +11,12 @@ from trytond.config import config as config_
 from trytond.tools import decistmt
 
 __all__ = ['Carrier', 'FormulaPriceList']
-__metaclass__ = PoolMeta
 
 DIGITS = config_.getint('product', 'price_decimal', default=4)
 
 
 class Carrier:
+    __metaclass__ = PoolMeta
     __name__ = 'carrier'
     formula_currency = fields.Many2One('currency.currency', 'Currency',
         states={
