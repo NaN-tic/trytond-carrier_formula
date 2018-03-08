@@ -2,37 +2,25 @@
 Carrier Formula Scenario
 ========================
 
-=============
-General Setup
-=============
-
 Imports::
 
     >>> import datetime
     >>> from dateutil.relativedelta import relativedelta
     >>> from decimal import Decimal
     >>> from proteus import config, Model, Wizard
+    >>> from trytond.tests.tools import activate_modules
     >>> from trytond.modules.company.tests.tools import create_company, \
     ...     get_company
     >>> from trytond.modules.account.tests.tools import create_fiscalyear, \
     ...     create_chart, get_accounts, create_tax, set_tax_code
-    >>> from.trytond.modules.account_invoice.tests.tools import \
+    >>> from trytond.modules.account_invoice.tests.tools import \
     ...     set_fiscalyear_invoice_sequences, create_payment_term
     >>> today = datetime.date.today()
 
-Create database::
-
-    >>> config = config.set_trytond()
-
 Install carrier_formula, purchase_shipment_cost and sale_shipment_cost::
 
-    >>> Module = Model.get('ir.module')
-    >>> modules = Module.find([
-    ...         ('name', 'in', ['carrier_formula',
-    ...                 'purchase_shipment_cost', 'sale_shipment_cost']),
-    ...         ])
-    >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
+    >>> config = activate_modules([
+    ...     'carrier_formula', 'purchase_shipment_cost', 'sale_shipment_cost'])
 
 Create company::
 
@@ -93,12 +81,12 @@ Create product::
     >>> template.type = 'goods'
     >>> template.salable = True
     >>> template.list_price = Decimal('20')
-    >>> template.cost_price = Decimal('8')
     >>> template.account_revenue = revenue
     >>> template.formula = 250
     >>> template.formula_uom = gram
     >>> template.save()
     >>> product.template = template
+    >>> product.cost_price = Decimal('8')
     >>> product.save()
     >>> carrier_product = Product()
     >>> carrier_template = ProductTemplate()
@@ -108,10 +96,10 @@ Create product::
     >>> carrier_template.type = 'service'
     >>> carrier_template.salable = True
     >>> carrier_template.list_price = Decimal('3')
-    >>> carrier_template.cost_price = Decimal('3')
     >>> carrier_template.account_revenue = revenue
     >>> carrier_template.save()
     >>> carrier_product.template = carrier_template
+    >>> carrier_product.cost_price = Decimal('3')
     >>> carrier_product.save()
 
 Create carrier::

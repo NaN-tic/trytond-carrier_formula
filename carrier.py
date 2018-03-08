@@ -1,9 +1,11 @@
-#This file is part carrier_formula module for Tryton.
-#The COPYRIGHT file at the top level of this repository contains
-#the full copyright notices and license terms.
+# This file is part carrier_formula module for Tryton.
+# The COPYRIGHT file at the top level of this repository contains
+# the full copyright notices and license terms.
 from decimal import Decimal
 from simpleeval import simple_eval
-from trytond.model import ModelSQL, ModelView, fields
+
+from trytond import backend
+from trytond.model import ModelSQL, ModelView, sequence_ordered, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
@@ -28,8 +30,8 @@ class Carrier:
     formula_currency_digits = fields.Function(fields.Integer(
             'Formula Currency Digits'),
         'on_change_with_formula_currency_digits')
-    formula_price_list = fields.One2Many('carrier.formula_price_list', 'carrier',
-        'Price List',
+    formula_price_list = fields.One2Many(
+        'carrier.formula_price_list', 'carrier', 'Price List',
         states={
             'invisible': Eval('carrier_cost_method') != 'formula',
             },
@@ -57,6 +59,7 @@ class Carrier:
             return Company(company).currency.digits
         return 2
 
+    @fields.depends('formula_currency')
     def on_change_with_formula_currency_digits(self, name=None):
         if self.formula_currency:
             return self.formula_currency.digits
@@ -92,8 +95,8 @@ class Carrier:
     def get_sale_price(self):
         # Designed to get shipment price with a current sale (default)
         # or calculate prices for a hipotetic order (sale cart).
-        # Second case, we add in context a carrier and simulate a sale in record
-        # to evaluate (safe eval) in carrier formula.
+        # Second case, we add in context a carrier and simulate a sale in
+        # record to evaluate (safe eval) in carrier formula.
 
         # Example:
         # sale = Sale()
@@ -101,7 +104,7 @@ class Carrier:
         # sale.tax_amount = tax_amount
         # sale.total_amount = total_amount
         # context = {}
-        # context['record'] = record 
+        # context['record'] = record
         # context['carrier'] = carrier
 
         price, currency_id = super(Carrier, self).get_sale_price()
@@ -118,12 +121,14 @@ class Carrier:
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
                     for line in record.lines:
-                        if hasattr(line, 'shipment_cost') and line.shipment_cost:
+                        if (hasattr(line, 'shipment_cost')
+                                and line.shipment_cost):
                             continue
                         if line.amount and line.type == 'line':
                             record.untaxed_amount += line.amount
                     record.tax_amount = record.get_tax_amount()
-                    record.total_amount = record.untaxed_amount + record.tax_amount
+                    record.total_amount = (
+                        record.untaxed_amount + record.tax_amount)
 
                     for formula in record.carrier.formula_price_list:
                         price = self.compute_formula_price(formula, record)
@@ -146,10 +151,13 @@ class Carrier:
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
                     for line in record['lines']:
-                        if not line.shipment_cost and line.amount and line.type == 'line':
+                        if (not line.shipment_cost
+                                and line.amount
+                                and line.type == 'line'):
                             record.untaxed_amount += line.amount
                     record.tax_amount = record.get_tax_amount()
-                    record.total_amount = record.untaxed_amount + record.tax_amount
+                    record.total_amount = (
+                        record.untaxed_amount + record.tax_amount)
 
                     for formula in record['carrier'].formula_price_list:
                         price = self.compute_formula_price(formula, record)
@@ -162,7 +170,7 @@ class Carrier:
         return price, currency_id
 
 
-class FormulaPriceList(ModelSQL, ModelView):
+class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView):
     'Carrier Formula Price List'
     __name__ = 'carrier.formula_price_list'
     carrier = fields.Many2One('carrier', 'Carrier', required=True, select=True)
@@ -181,9 +189,16 @@ class FormulaPriceList(ModelSQL, ModelView):
                     'list line "%(line)s".'),
                 })
 
-    @staticmethod
-    def default_sequence():
-        return 1
+    @classmethod
+    def __register__(cls, module_name):
+        TableHandler = backend.get('TableHandler')
+
+        super(FormulaPriceList, cls).__register__(module_name)
+
+        table_h = TableHandler(cls, module_name)
+
+        # Migration from 4.1
+        table_h.not_null_action('sequence', 'remove')
 
     @staticmethod
     def default_formula():

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- This file is part of carrier_formula. The COPYRIGHT file at the top level of
 this repository contains the full copyright notices and license terms. -->
-<tree string="Carrier Formula Price Lists" sequence="sequence">
+<tree sequence="sequence">
     <field name="carrier"/>
     <field name="sequence"/>
     <field name="formula"/>

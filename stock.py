@@ -1,6 +1,6 @@
-#This file is part carrier_formula module for Tryton.
-#The COPYRIGHT file at the top level of this repository contains
-#the full copyright notices and license terms.
+# This file is part carrier_formula module for Tryton.
+# The COPYRIGHT file at the top level of this repository contains
+# the full copyright notices and license terms.
 from decimal import Decimal
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
@@ -38,7 +38,6 @@ class ShipmentIn:
         context = super(ShipmentIn, self)._get_carrier_context()
         if not self.carrier:
             return context
-        context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
         company = Company(Transaction().context['company'])
@@ -58,7 +57,6 @@ class ShipmentOut:
         context = super(ShipmentOut, self)._get_carrier_context()
         if not self.carrier:
             return context
-        context = context.copy()
         if self.carrier.carrier_cost_method != 'formula':
             return context
         if self.origin and self.origin.__name__ == 'sale.sale':
