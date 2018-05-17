@@ -7,25 +7,25 @@ from trytond.transaction import Transaction
 
 __all__ = ['ShipmentIn', 'ShipmentOut']
 __metaclass__ = PoolMeta
-
+_ZERO = Decimal(0)
 
 def _formula_amount(lines, company):
     pool = Pool()
     Move = pool.get('stock.move')
     Currency = pool.get('currency.currency')
 
-    amount = 0
+    amount = _ZERO
     for line in lines or []:
         unit_price = getattr(line, 'unit_price',
             Move.default_unit_price() if hasattr(Move, 'default_unit_price')
-            else Decimal(0))
+            else _ZERO)
         currency = getattr(line, 'currency',
             Move.default_currency() if hasattr(Move, 'default_currency')
             else None)
         if currency:
             unit_price = Currency.compute(currency, unit_price,
                 company.currency, round=False)
-        amount += unit_price * Decimal(str(line.quantity or 0))
+        amount += (unit_price or _ZERO) * Decimal(str(line.quantity or 0))
     return amount
 
 
