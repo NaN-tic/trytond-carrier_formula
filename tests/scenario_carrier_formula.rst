@@ -84,10 +84,11 @@ Create product::
     >>> template.account_revenue = revenue
     >>> template.formula = 250
     >>> template.formula_uom = gram
-    >>> template.save()
-    >>> product.template = template
+    >>> product, = template.products
     >>> product.cost_price = Decimal('8')
-    >>> product.save()
+    >>> template.save()
+    >>> product, = template.products
+
     >>> carrier_product = Product()
     >>> carrier_template = ProductTemplate()
     >>> carrier_template.name = 'Carrier Product'
@@ -97,10 +98,10 @@ Create product::
     >>> carrier_template.salable = True
     >>> carrier_template.list_price = Decimal('3')
     >>> carrier_template.account_revenue = revenue
-    >>> carrier_template.save()
-    >>> carrier_product.template = carrier_template
+    >>> carrier_product, = carrier_template.products
     >>> carrier_product.cost_price = Decimal('3')
-    >>> carrier_product.save()
+    >>> carrier_template.save()
+    >>> carrier_product, = carrier_template.products
 
 Create carrier::
 
