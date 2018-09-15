@@ -17,8 +17,7 @@ __all__ = ['Carrier', 'FormulaPriceList']
 DIGITS = config_.getint('product', 'price_decimal', default=4)
 
 
-class Carrier:
-    __metaclass__ = PoolMeta
+class Carrier(metaclass=PoolMeta):
     __name__ = 'carrier'
     formula_currency = fields.Many2One('currency.currency', 'Currency',
         states={
