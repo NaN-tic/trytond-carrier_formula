@@ -84,7 +84,7 @@ class Carrier:
                 },
             }
 
-    def compute_formula_price(self, formula, record):
+    def compute_formula_price(self, record):
         "Compute price based on formula"
         context = self.get_context_formula(record)
         for line in self.formula_price_list:
@@ -115,8 +115,7 @@ class Carrier:
             record = Transaction().context.get('record', None)
 
             if carrier:
-                for formula in carrier.formula_price_list:
-                    price = self.compute_formula_price(formula, record)
+                price = self.compute_formula_price(record)
             elif record and record.__name__ == 'sale.sale':
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
