@@ -129,8 +129,7 @@ class Carrier:
                     record.total_amount = (
                         record.untaxed_amount + record.tax_amount)
 
-                    for formula in record.carrier.formula_price_list:
-                        price = self.compute_formula_price(formula, record)
+                    price = self.compute_formula_price(record)
                 else:
                     price = self.carrier_product.list_price
             else:
@@ -158,8 +157,7 @@ class Carrier:
                     record.total_amount = (
                         record.untaxed_amount + record.tax_amount)
 
-                    for formula in record['carrier'].formula_price_list:
-                        price = self.compute_formula_price(formula, record)
+                    price = self.compute_formula_price(record)
                 else:
                     price = self.carrier_product.list_price
             else:
