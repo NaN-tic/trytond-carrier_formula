@@ -5,7 +5,7 @@ from decimal import Decimal
 from simpleeval import simple_eval
 
 from trytond import backend
-from trytond.model import ModelSQL, ModelView, sequence_ordered, fields
+from trytond.model import ModelSQL, ModelView, MatchMixin, sequence_ordered, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
@@ -83,12 +83,17 @@ class Carrier(metaclass=PoolMeta):
                 },
             }
 
+    def get_formula_pattern(self, record):
+        return {}
+
     def compute_formula_price(self, record):
         "Compute price based on formula"
         context = self.get_context_formula(record)
+        pattern = self.get_formula_pattern(record)
         for line in self.formula_price_list:
-            if simple_eval(decistmt(line.formula), **context):
-                return line.price
+            if line.match(pattern):
+                if simple_eval(decistmt(line.formula), **context):
+                    return line.get_unit_price()
         return Decimal(0)
 
     def get_sale_price(self):
@@ -166,7 +171,7 @@ class Carrier(metaclass=PoolMeta):
         return price, currency_id
 
 
-class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView):
+class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
     'Carrier Formula Price List'
     __name__ = 'carrier.formula_price_list'
     carrier = fields.Many2One('carrier', 'Carrier', required=True, select=True)
@@ -215,3 +220,9 @@ class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView):
         Check formula
         '''
         return True
+
+    def match(self, pattern):
+        return super(FormulaPriceList, self).match(pattern)
+
+    def get_unit_price(self):
+        return self.price
