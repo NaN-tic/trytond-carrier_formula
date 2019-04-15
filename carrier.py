@@ -185,10 +185,6 @@ class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
     def __setup__(cls):
         super(FormulaPriceList, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
-        cls._error_messages.update({
-                'invalid_formula': ('Invalid formula "%(formula)s" in price '
-                    'list line "%(line)s".'),
-                })
 
     @classmethod
     def __register__(cls, module_name):
