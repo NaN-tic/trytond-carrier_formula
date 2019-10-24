@@ -48,6 +48,11 @@ Create chart of accounts::
     >>> revenue = accounts['revenue']
     >>> expense = accounts['expense']
 
+Create tax::
+
+    >>> tax = create_tax(Decimal('.10'))
+    >>> tax.save()
+
 Create supplier::
 
     >>> Party = Model.get('party.party')
@@ -66,6 +71,19 @@ Create category::
     >>> category = ProductCategory(name='Category')
     >>> category.save()
 
+Create account categories::
+
+    >>> ProductCategory = Model.get('product.category')
+    >>> account_category = ProductCategory(name="Account Category")
+    >>> account_category.accounting = True
+    >>> account_category.account_expense = expense
+    >>> account_category.account_revenue = revenue
+    >>> account_category.save()
+
+    >>> account_category_tax, = account_category.duplicate()
+    >>> account_category_tax.customer_taxes.append(tax)
+    >>> account_category_tax.save()
+
 Create product::
 
     >>> ProductUom = Model.get('product.uom')
@@ -76,7 +94,7 @@ Create product::
     >>> product = Product()
     >>> template = ProductTemplate()
     >>> template.name = 'Product'
-    >>> template.category = category
+    >>> template.account_category = account_category_tax
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.salable = True
@@ -92,7 +110,7 @@ Create product::
     >>> carrier_product = Product()
     >>> carrier_template = ProductTemplate()
     >>> carrier_template.name = 'Carrier Product'
-    >>> carrier_template.category = category
+    >>> carrier_template.account_category = account_category_tax
     >>> carrier_template.default_uom = unit
     >>> carrier_template.type = 'service'
     >>> carrier_template.salable = True
