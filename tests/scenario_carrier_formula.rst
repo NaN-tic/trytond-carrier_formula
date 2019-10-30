@@ -99,9 +99,6 @@ Create product::
     >>> template.type = 'goods'
     >>> template.salable = True
     >>> template.list_price = Decimal('20')
-    >>> template.account_revenue = revenue
-    >>> template.formula = 250
-    >>> template.formula_uom = gram
     >>> product, = template.products
     >>> product.cost_price = Decimal('8')
     >>> template.save()
@@ -115,7 +112,6 @@ Create product::
     >>> carrier_template.type = 'service'
     >>> carrier_template.salable = True
     >>> carrier_template.list_price = Decimal('3')
-    >>> carrier_template.account_revenue = revenue
     >>> carrier_product, = carrier_template.products
     >>> carrier_product.cost_price = Decimal('3')
     >>> carrier_template.save()
