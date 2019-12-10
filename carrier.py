@@ -188,11 +188,9 @@ class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
 
     @classmethod
     def __register__(cls, module_name):
-        TableHandler = backend.get('TableHandler')
-
         super(FormulaPriceList, cls).__register__(module_name)
 
-        table_h = TableHandler(cls, module_name)
+        table_h = backend.TableHandler(cls, module_name)
 
         # Migration from 4.1
         table_h.not_null_action('sequence', 'remove')
