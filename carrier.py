@@ -75,9 +75,6 @@ class Carrier(metaclass=PoolMeta):
                 'record': record,
             },
             'functions': {
-                'getattr': getattr,
-                'setattr': setattr,
-                'hasattr': hasattr,
                 'Decimal': Decimal,
                 'round': round,
                 },
