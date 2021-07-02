@@ -105,48 +105,76 @@ class Carrier(metaclass=PoolMeta):
         # sale.tax_amount = tax_amount
         # sale.total_amount = total_amount
         # context = {}
-        # context['record'] = record
+        # context['record'] = record._save_values
+        # context['record_model'] = 'sale.sale'
         # context['carrier'] = carrier
 
         price, currency_id = super(Carrier, self).get_sale_price()
+
         if self.carrier_cost_method == 'formula':
             price = Decimal(0)
             currency_id = self.formula_currency.id
             carrier = Transaction().context.get('carrier', None)
             record = Transaction().context.get('record', None)
+            model = Transaction().context.get('record_model', None)
+
+            if not record:
+                return price, currency_id
+
+            # is an object that not saved (has not id)
+            if isinstance(record, dict):
+                if not model:
+                    return price, currency_id
+                record = Pool().get(model)(**record)
+            else:
+                model, id = record.split(',')
+                record = Pool().get(model)(id)
 
             if carrier:
                 price = self.compute_formula_price(record)
-            elif record and record.__name__ == 'sale.sale':
-                if record.carrier:
-                    record.untaxed_amount = Decimal(0)
-                    for line in record.lines:
-                        if (hasattr(line, 'shipment_cost')
-                                and line.shipment_cost):
-                            continue
-                        if line.amount and line.type == 'line':
-                            record.untaxed_amount += line.amount
-                    record.tax_amount = record.get_tax_amount()
-                    record.total_amount = (
-                        record.untaxed_amount + record.tax_amount)
-
-                    price = self.compute_formula_price(record)
-                else:
-                    price = self.carrier_product.list_price
             else:
-                price = self.carrier_product.list_price
+                if model == 'sale.sale':
+                    if record.carrier:
+                        record.untaxed_amount = Decimal(0)
+                        for line in record.lines:
+                            if (hasattr(line, 'shipment_cost')
+                                    and line.shipment_cost):
+                                continue
+                            if line.amount and line.type == 'line':
+                                record.untaxed_amount += line.amount
+                        record.tax_amount = record.get_tax_amount()
+                        record.total_amount = (
+                            record.untaxed_amount + record.tax_amount)
+
+                        price = self.compute_formula_price(record)
+                    else:
+                        price = self.carrier_product.list_price
 
         price = self.round_price_formula(price, self.formula_currency_digits)
         return price, currency_id
 
     def get_purchase_price(self):
         price, currency_id = super(Carrier, self).get_purchase_price()
+
         if self.carrier_cost_method == 'formula':
             price = Decimal(0)
             currency_id = self.formula_currency.id
             record = Transaction().context.get('record', None)
+            model = Transaction().context.get('record_model', None)
 
-            if record and record.__name__ == 'purchase.purchase':
+            if not record:
+                return price, currency_id
+
+            # is an object that not saved (has not id)
+            if isinstance(record, dict):
+                if not model:
+                    return price, currency_id
+                record = Pool().get(model)(**record)
+            else:
+                model, id = record.split(',')
+                record = Pool().get(model)(id)
+
+            if model == 'purchase.purchase':
                 if record.carrier:
                     record.untaxed_amount = Decimal(0)
                     for line in record['lines']:
@@ -161,8 +189,6 @@ class Carrier(metaclass=PoolMeta):
                     price = self.compute_formula_price(record)
                 else:
                     price = self.carrier_product.list_price
-            else:
-                price = self.carrier_product.list_price
 
         price = self.round_price_formula(price, self.formula_currency_digits)
         return price, currency_id
