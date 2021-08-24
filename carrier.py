@@ -26,9 +26,6 @@ class Carrier(metaclass=PoolMeta):
             'readonly': Bool(Eval('formula_price_list', [])),
             },
         depends=['carrier_cost_method', 'formula_price_list'])
-    formula_currency_digits = fields.Function(fields.Integer(
-            'Formula Currency Digits'),
-        'on_change_with_formula_currency_digits')
     formula_price_list = fields.One2Many(
         'carrier.formula_price_list', 'carrier', 'Price List',
         states={
@@ -49,20 +46,6 @@ class Carrier(metaclass=PoolMeta):
         company = Transaction().context.get('company')
         if company:
             return Company(company).currency.id
-
-    @staticmethod
-    def default_formula_currency_digits():
-        Company = Pool().get('company.company')
-        company = Transaction().context.get('company')
-        if company:
-            return Company(company).currency.digits
-        return 2
-
-    @fields.depends('formula_currency')
-    def on_change_with_formula_currency_digits(self, name=None):
-        if self.formula_currency:
-            return self.formula_currency.digits
-        return 2
 
     @staticmethod
     def round_price_formula(number, digits):
@@ -150,7 +133,7 @@ class Carrier(metaclass=PoolMeta):
                     else:
                         price = self.carrier_product.list_price
 
-        price = self.round_price_formula(price, self.formula_currency_digits)
+        price = self.round_price_formula(price, self.formula_currency.digits)
         return price, currency_id
 
     def get_purchase_price(self):
@@ -190,7 +173,7 @@ class Carrier(metaclass=PoolMeta):
                 else:
                     price = self.carrier_product.list_price
 
-        price = self.round_price_formula(price, self.formula_currency_digits)
+        price = self.round_price_formula(price, self.formula_currency.digits)
         return price, currency_id
 
 

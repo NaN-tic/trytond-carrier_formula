@@ -10,10 +10,6 @@ msgctxt "field:carrier,formula_currency:"
 msgid "Currency"
 msgstr "Moneda"
 
-msgctxt "field:carrier,formula_currency_digits:"
-msgid "Formula Currency Digits"
-msgstr "Dígitos moneda formula"
-
 msgctxt "field:carrier,formula_price_list:"
 msgid "Price List"
 msgstr "Tarifa"
