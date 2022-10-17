@@ -9,7 +9,7 @@ from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
 from trytond.tools import decistmt
-from trytond.modules.product import price_decimal
+from trytond.modules.product import price_digits
 
 __all__ = ['Carrier', 'FormulaPriceList']
 
@@ -182,7 +182,7 @@ class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
             'getattr(record, "total_amount") > 0'))
-    price = fields.Numeric('Price', required=True, digits=price_decimal)
+    price = fields.Numeric('Price', required=True, digits=price_digits)
 
     @classmethod
     def __setup__(cls):
