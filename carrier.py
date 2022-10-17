@@ -3,18 +3,15 @@
 # the full copyright notices and license terms.
 from decimal import Decimal
 from simpleeval import simple_eval
-
 from trytond import backend
 from trytond.model import ModelSQL, ModelView, MatchMixin, sequence_ordered, fields
 from trytond.pyson import Eval, Bool
 from trytond.pool import Pool, PoolMeta
 from trytond.transaction import Transaction
-from trytond.config import config as config_
 from trytond.tools import decistmt
+from trytond.modules.product import price_decimal
 
 __all__ = ['Carrier', 'FormulaPriceList']
-
-DIGITS = config_.getint('product', 'price_decimal', default=4)
 
 
 class Carrier(metaclass=PoolMeta):
@@ -185,7 +182,7 @@ class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
             'getattr(record, "total_amount") > 0'))
-    price = fields.Numeric('Price', required=True, digits=(16, DIGITS))
+    price = fields.Numeric('Price', required=True, digits=price_decimal)
 
     @classmethod
     def __setup__(cls):
