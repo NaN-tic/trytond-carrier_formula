@@ -177,7 +177,7 @@ class Carrier(metaclass=PoolMeta):
 class FormulaPriceList(sequence_ordered(), ModelSQL, ModelView, MatchMixin):
     'Carrier Formula Price List'
     __name__ = 'carrier.formula_price_list'
-    carrier = fields.Many2One('carrier', 'Carrier', required=True, select=True)
+    carrier = fields.Many2One('carrier', 'Carrier', required=True)
     sequence = fields.Integer('Sequence', required=True)
     formula = fields.Char('Formula', required=True,
         help=('Python expression that will be evaluated. Eg:\n'
