@@ -106,7 +106,7 @@ class Carrier(metaclass=PoolMeta):
                 if not model:
                     return price, currency_id
                 record = Pool().get(model)(**record)
-            else:
+            elif isinstance(record, str):
                 model, id = record.split(',')
                 record = Pool().get(model)(id)
 
