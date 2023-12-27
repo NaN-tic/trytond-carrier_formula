@@ -57,11 +57,13 @@ class ShipmentOut(metaclass=PoolMeta):
             return context
         if self.carrier.carrier_cost_method != 'formula':
             return context
-        if hasattr(self, 'origin') and self.origin and self.origin.__name__ == 'sale.sale':
+        if (hasattr(self, 'origin') and self.origin
+                and self.origin.__name__ == 'sale.sale'):
             context['record'] = str(self.origin)
         else:
             context['record'] = str(self)
         company = Company(Transaction().context['company'])
-        context['amount'] = _formula_amount(self.inventory_moves, company)
+        if hasattr(self, 'inventory_moves') and self.inventory_moves:
+            context['amount'] = _formula_amount(self.inventory_moves, company)
         context['currency'] = company.currency.id
         return context
