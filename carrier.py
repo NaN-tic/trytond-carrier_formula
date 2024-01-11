@@ -21,14 +21,12 @@ class Carrier(metaclass=PoolMeta):
             'invisible': Eval('carrier_cost_method') != 'formula',
             'required': Eval('carrier_cost_method') == 'formula',
             'readonly': Bool(Eval('formula_price_list', [])),
-            },
-        depends=['carrier_cost_method', 'formula_price_list'])
+            })
     formula_price_list = fields.One2Many(
         'carrier.formula_price_list', 'carrier', 'Price List',
         states={
             'invisible': Eval('carrier_cost_method') != 'formula',
-            },
-        depends=['carrier_cost_method', 'formula_currency'])
+            })
 
     @classmethod
     def __setup__(cls):
