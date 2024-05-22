@@ -3,16 +3,14 @@
 # the full copyright notices and license terms.
 from trytond.pool import PoolMeta
 
-__all__ = ['Sale']
-
 
 class Sale(metaclass=PoolMeta):
     __name__ = 'sale.sale'
 
-    def _get_carrier_context(self):
-        context = super(Sale, self)._get_carrier_context()
-
-        if self.carrier and self.carrier.carrier_cost_method != 'formula':
+    def _get_carrier_context(self, carrier):
+        context = super(Sale, self)._get_carrier_context(carrier)
+        carrier = carrier or self.carrier
+        if carrier and carrier.carrier_cost_method != 'formula':
             return context
         if not self.currency:
             return context
