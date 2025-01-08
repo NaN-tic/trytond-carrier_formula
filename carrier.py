@@ -83,7 +83,7 @@ class Carrier(metaclass=PoolMeta):
         # sale.tax_amount = tax_amount
         # sale.total_amount = total_amount
         # context = {}
-        # context['record'] = record._save_values
+        # context['record'] = record._save_values()
         # context['record_model'] = 'sale.sale'
         # context['carrier'] = carrier
 
