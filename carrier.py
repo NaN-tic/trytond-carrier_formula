@@ -38,9 +38,9 @@ class Carrier(metaclass=PoolMeta):
     @staticmethod
     def default_formula_currency():
         Company = Pool().get('company.company')
-        company = Transaction().context.get('company')
-        if company:
-            return Company(company).currency.id
+        company_id = Transaction().context.get('company')
+        if company_id is not None and company_id >= 0:
+            return Company(company_id).currency.id
 
     @staticmethod
     def round_price_formula(number, digits):
