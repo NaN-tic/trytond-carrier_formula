@@ -126,7 +126,7 @@ class Carrier(metaclass=PoolMeta):
 
                         price = self.compute_formula_price(record)
                     else:
-                        price = self.carrier_product.list_price
+                        price = self.carrier_product.list_price_used
 
         price = self.round_price_formula(price, self.formula_currency.digits)
         return price, currency_id
@@ -166,7 +166,7 @@ class Carrier(metaclass=PoolMeta):
 
                     price = self.compute_formula_price(record)
                 else:
-                    price = self.carrier_product.list_price
+                    price = self.carrier_product.list_price_used
 
         price = self.round_price_formula(price, self.formula_currency.digits)
         return price, currency_id
