@@ -58,7 +58,7 @@ class ShipmentOut(metaclass=PoolMeta):
         if self.carrier.carrier_cost_method != 'formula':
             return context
         if (hasattr(self, 'origin') and self.origin
-                and self.origin.__name__ == 'sale.sale'):
+                and getattr(self.origin, '__name__', None) == 'sale.sale'):
             context['record'] = str(self.origin)
         else:
             context['record'] = str(self)
